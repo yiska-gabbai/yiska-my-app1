@@ -1,40 +1,28 @@
-name: Simple Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
 
 jobs:
-  build_stage:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Simulate Build Process
-        run: |
-          echo "Starting build process..."
-          echo "Build completed successfully!"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-  test_stage:
-    needs: build_stage
-    runs-on: ubuntu-latest
+      - name: Install dependencies
+        run: npm install
 
-    steps:
-      - name: Simulate Tests
-        run: |
-          echo "=== STARTING TEST STAGE ==="
-          python3 -c "print('JUnit / PyTest status: 100% Success!')"
+      - name: Build app
+        run: npm run build
 
-  deploy_stage:
-    needs: test_stage
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Simulate Deploy
-        run: |
-          echo "=== STARTING DEPLOY STAGE ==="
-          echo "Deploying the artifact to Staging environment..."
-          echo "Deployment completed! App is live."
+      - name: Run tests
+        run: npm test
